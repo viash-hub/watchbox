@@ -1,0 +1,81 @@
+name: seqera
+description: |
+  Query a Seqera Platform instance for pipeline execution statistics
+  over a given time window. Produces a structured report with run
+  counts, success/failure rates, durations, and error summaries.
+
+argument_groups:
+  - name: Connection
+    arguments:
+      - name: --base_url
+        type: string
+        description: |
+          Base URL of the Seqera Platform API
+          (e.g. https://seqera.example.com/api).
+        required: true
+        example: "https://seqera.example.com/api"
+      - name: --token
+        type: string
+        description: |
+          Seqera Platform API access token. Can also be provided via
+          the TOWER_ACCESS_TOKEN environment variable.
+        required: false
+      - name: --workspace_id
+        type: string
+        description: |
+          Numeric workspace ID to query. Find it via the API:
+          curl -H "Authorization: Bearer $TOWER_ACCESS_TOKEN" \
+            https://api.cloud.seqera.io/orgs/{orgId}/workspaces
+        required: true
+        example: "20807160317427"
+
+  - name: Time Window
+    arguments:
+      - name: --days
+        type: integer
+        description: Number of days to look back from today.
+        default: 7
+      - name: --from_date
+        type: string
+        description: |
+          Start date (ISO 8601, e.g. 2026-04-09). Overrides --days
+          when used together with --to_date.
+        required: false
+      - name: --to_date
+        type: string
+        description: |
+          End date (ISO 8601, e.g. 2026-04-16). Defaults to today.
+        required: false
+
+  - name: Outputs
+    arguments:
+      - name: --output
+        type: file
+        direction: output
+        description: Report output file (Markdown).
+        default: seqera_report.md
+      - name: --output_json
+        type: file
+        direction: output
+        description: Raw data output (JSON) for downstream processing.
+        required: false
+        default: seqera_report.json
+
+resources:
+  - type: python_script
+    path: script.py
+
+engines:
+  - type: docker
+    image: python:3.12-slim
+    setup:
+      - type: apt
+        packages:
+          - procps
+      - type: python
+        packages:
+          - requests
+
+runners:
+  - type: executable
+  - type: nextflow

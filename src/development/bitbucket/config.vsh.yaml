@@ -1,0 +1,100 @@
+name: bitbucket
+description: |
+  Query a Bitbucket instance for development activity over a given
+  time window. Collects merged pull requests, tags, and commit
+  activity for a set of repositories. Produces a structured report.
+  Supports both Bitbucket Cloud and Bitbucket Data Center / Server.
+
+argument_groups:
+  - name: Connection
+    arguments:
+      - name: --base_url
+        type: string
+        description: |
+          Base URL of the Bitbucket instance API. For Bitbucket Cloud
+          use https://api.bitbucket.org/2.0. For Bitbucket Data Center
+          use https://bitbucket.example.com/rest/api/1.0.
+        required: true
+        example: "https://bitbucket.example.com/rest/api/1.0"
+      - name: --token
+        type: string
+        description: |
+          Bitbucket HTTP access token. Can also be provided via
+          the BITBUCKET_TOKEN environment variable.
+        required: false
+      - name: --platform
+        type: string
+        description: |
+          Bitbucket platform type. Use "server" for Bitbucket Data
+          Center / Server, or "cloud" for Bitbucket Cloud.
+        default: server
+        choices: [server, cloud]
+
+  - name: Repositories
+    arguments:
+      - name: --repos
+        type: string
+        multiple: true
+        description: |
+          Repositories to query, as project/repo
+          (e.g. PROJ/my-repo MY-TEAM/another-repo).
+        required: true
+        example: "PROJ/my-repo"
+      - name: --default_branch
+        type: string
+        description: |
+          Default branch name. Used for commit counting when not
+          otherwise detectable.
+        default: main
+
+  - name: Time Window
+    arguments:
+      - name: --days
+        type: integer
+        description: Number of days to look back from today.
+        default: 7
+      - name: --from_date
+        type: string
+        description: |
+          Start date (ISO 8601, e.g. 2026-04-09). Overrides --days
+          when used together with --to_date.
+        required: false
+      - name: --to_date
+        type: string
+        description: |
+          End date (ISO 8601, e.g. 2026-04-16). Defaults to today.
+        required: false
+
+  - name: Outputs
+    arguments:
+      - name: --output
+        type: file
+        direction: output
+        description: Report output file (Markdown).
+        default: development_report.md
+      - name: --output_json
+        type: file
+        direction: output
+        description: Raw data output (JSON) for downstream processing.
+        required: false
+        default: development_report.json
+
+resources:
+  - type: python_script
+    path: script.py
+  - path: test_script.py
+
+engines:
+  - type: docker
+    image: python:3.12-slim
+    setup:
+      - type: apt
+        packages:
+          - procps
+      - type: python
+        packages:
+          - requests
+
+runners:
+  - type: executable
+  - type: nextflow
