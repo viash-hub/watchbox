@@ -1,23 +1,10 @@
-# Watchbox
+# WatchBox
 
 Platform operations reporting components for [Viash Hub](https://github.com/viash-hub/watchbox). Collects pipeline execution stats, development activity, and operational metrics from various services and produces structured reports.
 
-## Prerequisites
-
-- [Viash](https://viash.io) >= 0.9.0
-- Docker
-
-## Building
-
-```bash
-viash ns build --parallel
-```
-
-This builds all components into `target/executable/`.
-
 ## Components
 
-### operations/seqera_workspaces
+### `operations/seqera_workspaces`
 
 Lists organizations and workspaces from a Seqera Platform instance with their numeric IDs. Use this to discover the workspace ID required by the `seqera` component.
 
@@ -44,7 +31,7 @@ Output (markdown table and JSON):
 | MyOrg        | 229986376311324 | Demo      | 20807160317427 | PRIVATE    |
 ```
 
-### operations/seqera
+### `operations/seqera`
 
 Queries a Seqera Platform instance for pipeline execution statistics over a given time window. Produces a report with run counts, success/failure rates, durations, per-pipeline breakdowns, and detailed error reports for failed runs.
 
@@ -78,7 +65,7 @@ Outputs `seqera_report.md` and `seqera_report.json` containing:
 - Per-pipeline breakdown with success rates and average durations
 - Detailed failure reports with error output, run IDs, and exit statuses
 
-### development/github
+### `development/github`
 
 Queries GitHub for development activity over a given time window. Collects merged pull requests, releases/tags, and commit activity for a set of repositories.
 
@@ -104,7 +91,7 @@ target/executable/development/github/github \
 
 Outputs `development_report.md` and `development_report.json`.
 
-### development/bitbucket
+### `development/bitbucket`
 
 Queries a Bitbucket instance for development activity over a given time window. Collects merged pull requests, tags, and commit activity for a set of repositories. Supports both Bitbucket Cloud and Bitbucket Data Center / Server.
 
