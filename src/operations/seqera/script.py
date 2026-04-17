@@ -97,6 +97,8 @@ while True:
     if not batch:
         break
 
+    # Workflows returned newest-first; stop once we pass date_from.
+    reached_cutoff = False
     for entry in batch:
         wf = entry.get("workflow", entry)
         submitted = wf.get("submit")
@@ -104,13 +106,12 @@ while True:
             continue
         submit_dt = datetime.fromisoformat(submitted.replace("Z", "+00:00"))
         if submit_dt < date_from:
-            # Workflows are returned newest-first; stop paginating.
-            batch = []
+            reached_cutoff = True
             break
         if submit_dt <= date_to:
             workflows.append(wf)
 
-    if len(batch) < page_size:
+    if reached_cutoff or len(batch) < page_size:
         break
     offset += page_size
 
