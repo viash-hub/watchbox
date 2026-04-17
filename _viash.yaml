@@ -3,9 +3,9 @@ description: |
   Platform operations reporting components for Viash Hub. Collects
   pipeline execution stats, development activity, and operational
   metrics from various services and produces structured reports.
-license: MIT
+license: proprietary
 keywords: [watchbox, reporting, operations, monitoring]
 links:
   repository: https://github.com/viash-hub/watchbox
 
-viash_version: 0.9.0
+viash_version: 0.9.7
