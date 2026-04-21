@@ -1,0 +1,103 @@
+name: quarto
+description: |
+  Combine JSON outputs from watchbox components (seqera, github,
+  bitbucket) into a unified report. Generates a Quarto document and
+  renders it to HTML and optionally GitHub-Flavoured Markdown.
+
+argument_groups:
+  - name: Inputs
+    arguments:
+      - name: --seqera_json
+        type: file
+        multiple: true
+        description: |
+          One or more JSON files produced by the operations/seqera
+          component.
+        required: false
+        example: "seqera_report.json"
+      - name: --development_json
+        type: file
+        multiple: true
+        description: |
+          One or more JSON files produced by the development/github or
+          development/bitbucket components.
+        required: false
+        example: "development_report.json"
+
+  - name: Report
+    arguments:
+      - name: --title
+        type: string
+        description: Report title shown at the top of the document.
+        default: "WatchBox Report"
+      - name: --subtitle
+        type: string
+        description: Optional subtitle shown below the title.
+        required: false
+      - name: --theme
+        type: string
+        description: Quarto HTML theme (e.g. cosmo, flatly, darkly).
+        default: cosmo
+
+  - name: Outputs
+    arguments:
+      - name: --output
+        type: file
+        direction: output
+        description: Rendered HTML report.
+        default: report.html
+      - name: --output_md
+        type: file
+        direction: output
+        description: |
+          Rendered GitHub-Flavoured Markdown report. Omit to skip
+          markdown rendering.
+        required: false
+      - name: --output_qmd
+        type: file
+        direction: output
+        description: |
+          Intermediate Quarto source (.qmd). Useful for debugging or
+          further customisation.
+        required: false
+
+resources:
+  - type: python_script
+    path: script.py
+
+test_resources:
+  - type: python_script
+    path: test_script.py
+
+engines:
+  - type: docker
+    image: python:3.12-slim
+    setup:
+      - type: apt
+        packages:
+          - procps
+          - curl
+          - ca-certificates
+          - tar
+          - gzip
+      - type: docker
+        run: |
+          set -eux; \
+          ARCH="$(dpkg --print-architecture)"; \
+          case "$ARCH" in \
+            amd64) QARCH=linux-amd64 ;; \
+            arm64) QARCH=linux-arm64 ;; \
+            *) echo "Unsupported arch: $ARCH" >&2; exit 1 ;; \
+          esac; \
+          QVER=1.5.57; \
+          curl -fsSL -o /tmp/quarto.tar.gz \
+            "https://github.com/quarto-dev/quarto-cli/releases/download/v${QVER}/quarto-${QVER}-${QARCH}.tar.gz"; \
+          mkdir -p /opt/quarto; \
+          tar -xzf /tmp/quarto.tar.gz -C /opt/quarto --strip-components=1; \
+          ln -s /opt/quarto/bin/quarto /usr/local/bin/quarto; \
+          rm /tmp/quarto.tar.gz; \
+          quarto --version
+
+runners:
+  - type: executable
+  - type: nextflow

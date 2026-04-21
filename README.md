@@ -124,3 +124,29 @@ target/executable/development/bitbucket/bitbucket \
 ```
 
 Outputs `development_report.md` and `development_report.json` in the same format as the github component.
+
+### `reporting/quarto`
+
+Combines JSON outputs from the other watchbox components into a single Quarto-rendered HTML (and optionally GitHub-Flavoured Markdown) report. Accepts multiple JSON inputs per category and emits an executive summary followed by per-source detail sections.
+
+```bash
+# HTML + markdown from one seqera run and two dev runs
+target/executable/reporting/quarto/quarto \
+  --seqera_json seqera_report.json \
+  --development_json github_report.json bitbucket_report.json \
+  --title "Weekly Ops Report" \
+  --output report.html \
+  --output_md report.md
+
+# Keep the intermediate .qmd source for tweaking
+target/executable/reporting/quarto/quarto \
+  --seqera_json seqera_report.json \
+  --output_qmd report.qmd \
+  --output report.html
+```
+
+Outputs:
+
+- `--output` rendered HTML (self-contained, embedded resources)
+- `--output_md` optional GitHub-Flavoured Markdown
+- `--output_qmd` optional intermediate Quarto source
